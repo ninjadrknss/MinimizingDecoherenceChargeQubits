@@ -2,24 +2,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 E_C = 1.0  # The capacitance of the circuit
-n_g0 = 0.501  # starting n_g value (Small offsets make it have a wave?)
+n_g0 = 0.501  # starting n_g value (Exactly 0.5 causes inf period)
 std = 0.05  # standard deviation of n_g fluctuations
-T = 10000  # time range
-dt = 0.01  # step size of integral
-num_steps = int(T / dt)  # resolution of integral
+T = 10000  # time range (arbitrary units)
+dt = 0.01  # step size of integral, resolution of integral
+num_steps = int(T / dt)  # number of steps in the integral
 num_realizations = 100  # number of simulated particles to avg
 
 P_t_all = np.zeros((num_realizations, num_steps), dtype=complex) 
-np.random.seed(0)
+np.random.seed(0) 
 
-for i in range(num_realizations):
-    n_g_fluctuations = np.random.normal(0, std, num_steps)
-    n_g = n_g0 + n_g_fluctuations  # should in theory be normalized against dt (won't work due to the random function)
-    delta_E = 4 * E_C * (1 - 2 * n_g)
-    integrated_E = np.cumsum(delta_E) * dt
-    P_t_all[i] = np.exp(1j * integrated_E)
+for i in range(num_realizations): # for each realization
+    n_g_fluctuations = np.random.normal(0, std, num_steps) # create the normal distribution for the random walk
+    n_g = n_g0 + n_g_fluctuations # add the fluctuations to the starting n_g value
+    delta_E = 4 * E_C * (1 - 2 * n_g) # energy change equation
+    integrated_E = np.cumsum(delta_E) * dt # approximate the integral
+    P_t_all[i] = np.exp(1j * integrated_E) # evaluate the exponent and insert into the array
 
-P_t_avg = np.mean(P_t_all, axis=0)
+P_t_avg = np.mean(P_t_all, axis=0) # avg the realizations of P(t)
 
 plt.figure(figsize=(15, 7))
 plt.subplot(1, 2, 1)
